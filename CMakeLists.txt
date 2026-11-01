@@ -16,11 +16,13 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ./include
+        ./include/db
 )
 
 
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+        mysqlclient
         qinmo_tool
 )

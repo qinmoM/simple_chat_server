@@ -8,7 +8,7 @@
 #include <memory>
 
 
-namespace qinmo
+namespace my
 {
 
 class MysqlConn
@@ -43,7 +43,7 @@ public:
             return op;
         }
 
-        Result(MYSQL_RES* res, bool& hasResult)
+        Result(MYSQL_RES* res, std::shared_ptr<bool> hasResult)
             : res_(res)
             , hasResult_(hasResult)
         { }
@@ -51,7 +51,7 @@ public:
         {
             mysql_free_result(res_);
             res_ = nullptr;
-            hasResult_ = false;
+            *hasResult_ = false;
             row_ = nullptr;
             lengths_ = nullptr;
         }
@@ -63,12 +63,31 @@ public:
         unsigned long* lengths_ = nullptr;
         std::size_t col_ = 0;
         MYSQL_RES* res_;
-        bool& hasResult_;
+        std::shared_ptr<bool> hasResult_;
     };
 
 public:
     MysqlConn();
     ~MysqlConn();
+
+    MysqlConn(const MysqlConn&) = delete;
+    MysqlConn& operator=(const MysqlConn&) = delete;
+
+    MysqlConn(MysqlConn&& conn)
+    {
+        conn_ = conn.conn_;
+        conn.conn_ = nullptr;
+        hasResult_ = conn.hasResult_;
+        conn.hasResult_ = nullptr;
+    }
+    MysqlConn& operator=(MysqlConn&& conn)
+    {
+        conn_ = conn.conn_;
+        conn.conn_ = nullptr;
+        hasResult_ = conn.hasResult_;
+        conn.hasResult_ = nullptr;
+        return *this;
+    }
 
 public:
 /*
@@ -87,6 +106,8 @@ public:
     /// @note the lifetime of the result must be shorter than `MysqlConn`
     std::unique_ptr<Result> getResult();
 
+    bool isValid();
+
 /*
         transaction
 */
@@ -97,7 +118,7 @@ public:
 
 private:
     MYSQL* conn_ = nullptr;
-    bool hasResult_ = false;
+    std::shared_ptr<bool> hasResult_ = std::make_shared<bool>(false);
 
 };
 
@@ -134,7 +155,7 @@ inline bool MysqlConn::connect(const std::string& user, const std::string& passw
 
 inline bool MysqlConn::execute(const std::string& sql)
 {
-    if (nullptr == conn_ || hasResult_)
+    if (nullptr == conn_ || *hasResult_)
         return false;
 
     if (mysql_query(conn_, sql.c_str()))
@@ -145,15 +166,23 @@ inline bool MysqlConn::execute(const std::string& sql)
 
 inline std::unique_ptr<MysqlConn::Result> MysqlConn::getResult()
 {
-    if (nullptr == conn_ || hasResult_)
+    if (nullptr == conn_ || *hasResult_)
         return nullptr;
 
     MYSQL_RES* res = mysql_store_result(conn_);
     if (nullptr == res)
         return nullptr;
 
-    hasResult_ = true;
+    *hasResult_ = true;
     return qinmo::make_unique<MysqlConn::Result>(res, hasResult_);
+}
+
+inline bool MysqlConn::isValid()
+{
+    if (nullptr == conn_)
+        return false;
+
+    return 0 == mysql_ping(conn_);
 }
 
 inline bool MysqlConn::transaction()

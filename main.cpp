@@ -1,5 +1,4 @@
-#include <mysql/mysql.h>
-#include <qinmo/tool.h>
+#include "MysqlConn.h"
 
 int main()
 {

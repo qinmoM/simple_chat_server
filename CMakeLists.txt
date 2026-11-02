@@ -4,7 +4,7 @@ project(chat)
 
 
 add_subdirectory(
-    external/qinmo_tool
+    external/qinmo_net
 )
 
 
@@ -15,8 +15,9 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ./include
         ./include/db
+        ./include/model
+        ./include/service
         ./external/nlohmann_json
 )
 
@@ -25,5 +26,5 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         mysqlclient
-        qinmo_tool
+        qinmo_net
 )

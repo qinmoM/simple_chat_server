@@ -1,6 +1,3 @@
-[submodule "external/qinmo_tool"]
-	path = external/qinmo_tool
-	url = https://github.com/qinmoM/qinmo_tool
 [submodule "external/qinmo_net"]
 	path = external/qinmo_net
 	url = https://github.com/qinmoM/qinmo_net

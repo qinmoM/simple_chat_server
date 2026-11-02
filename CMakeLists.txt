@@ -17,6 +17,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ./include
         ./include/db
+        ./external/nlohmann_json
 )
 
 

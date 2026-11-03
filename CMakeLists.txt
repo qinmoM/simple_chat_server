@@ -12,6 +12,8 @@ add_subdirectory(
 add_executable(${PROJECT_NAME}
     ./main.cpp
     ./src/ChatServer.cpp
+    ./src/ChatService.cpp
+    ./src/UserModel.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

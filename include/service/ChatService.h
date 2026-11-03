@@ -12,18 +12,13 @@ using MsgHandler = std::function<void(const qinmo::net::RTcpConnPtr&, qinmo::net
 class ChatService
 {
 public:
-    static ChatService& getInstance()
-    {
-        static ChatService ser;
-        return ser;
-    }
+    static ChatService& getInstance();
 
-    MsgHandler getHandler(const json& js)
-    {
-        QINMO_INFO("json id: ", js["id"].get<int>());
-        return nullptr;
-    }
+    MsgHandler getHandler(const json& js);
 private:
     ChatService() { }
+
+    void loginMessage(const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp);
+    void registerMessage(const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp);
 };
 } // namespace my

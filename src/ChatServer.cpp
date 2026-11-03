@@ -16,13 +16,13 @@ ChatServer::ChatServer(qinmo::net::EventLoop* loop, const qinmo::net::InetAddr& 
     server_.setConnectFunc(
         [this](const qinmo::net::RTcpConnPtr& conn)
         {
-            qinmo::println("connect: ", conn->getfd());
+            QINMO_INFO("connect: ", conn->getfd());
         });
 
     server_.setDisconnectFunc(
         [this](const qinmo::net::RTcpConnPtr& conn)
         {
-            qinmo::println("disconnect: ", conn->getfd());
+            QINMO_INFO("disconnect: ", conn->getfd());
         });
 }
 
@@ -42,14 +42,25 @@ void ChatServer::message(const qinmo::net::RTcpConnPtr& conn, qinmo::net::Packet
         return;
     }
 
-    json js = json::parse(msgStr);
-    auto handler = ChatService::getInstance().getHandler(js);
 
+    json js;
+    try
+    {
+        js = json::parse(msgStr);
+    }
+    catch (const json::parse_error& e)
+    {
+        QINMO_ERROR("ChatServer::message: Failed to parse json. position:", e.byte, " what:", e.what());
+        return;
+    }
+
+    auto handler = ChatService::getInstance().getHandler(js);
     if (!handler)
     {
         QINMO_ERROR("ChatServer::message: Failed to take handler.");
         return;
     }
+
     handler(conn, input, timestamp);
 }
 } // namespace my

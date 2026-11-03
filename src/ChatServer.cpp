@@ -61,6 +61,6 @@ void ChatServer::message(const qinmo::net::RTcpConnPtr& conn, qinmo::net::Packet
         return;
     }
 
-    handler(conn, input, timestamp);
+    handler(conn, js, timestamp);
 }
 } // namespace my

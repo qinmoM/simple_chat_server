@@ -12,24 +12,24 @@ ChatService& ChatService::getInstance()
 
 MsgHandler ChatService::getHandler(const json& js)
 {
-    MessageType msgType = js["id"].get<MessageType>();
+    MessageType msgType = js["msg_type"].get<MessageType>();
     switch (msgType)
     {
         case MessageType::MsgLogin:
         {
             return
-                [this](const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp)
+                [this](const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
                 {
-                    loginMessage(conn, input, timestamp);
+                    loginMessage(conn, js, timestamp);
                 };
         }
 
         case MessageType::MsgRegister:
         {
             return
-                [this](const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp)
+                [this](const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
                 {
-                    registerMessage(conn, input, timestamp);
+                    registerMessage(conn, js, timestamp);
                 };
         }
 
@@ -40,13 +40,36 @@ MsgHandler ChatService::getHandler(const json& js)
     }
 }
 
-void ChatService::loginMessage(const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp)
+
+
+void ChatService::loginMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
 {
     ;
 }
 
-void ChatService::registerMessage(const qinmo::net::RTcpConnPtr& conn, qinmo::net::PacketBuffer& input, qinmo::Timestamp timestamp)
+void ChatService::registerMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
 {
-    ;
+    std::string name = js["name"];
+    std::string password_hash = js["password_hash"];
+
+    User user;
+    user.name = name;
+    user.password_hash = password_hash;
+    QINMO_INFO("ChatService::registerMessage: ", user.name, " - ", user.password_hash);
+    if (userModel_.insert(user))
+    {
+        json response;
+        response["msg_type"] = MessageType::MsgRegisterAck;
+        response["errno"] = 0;
+        response["id"] = user.id;
+        conn->send(response.dump());
+    }
+    else
+    {
+        json response;
+        response["msg_type"] = MessageType::MsgRegisterAck;
+        response["errno"] = 1;
+        conn->send(response.dump());
+    }
 }
 } // namespace my

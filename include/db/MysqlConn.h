@@ -106,6 +106,9 @@ public:
     /// @note the lifetime of the result must be shorter than `MysqlConn`
     std::unique_ptr<Result> getResult();
 
+    /// @brief take the auto id that after last insert on current connect
+    /// @return 0 if none exists
+    unsigned long getInsertId();
     bool isValid();
 
 /*
@@ -175,6 +178,14 @@ inline std::unique_ptr<MysqlConn::Result> MysqlConn::getResult()
 
     *hasResult_ = true;
     return qinmo::make_unique<MysqlConn::Result>(res, hasResult_);
+}
+
+inline unsigned long MysqlConn::getInsertId()
+{
+    if (nullptr == conn_)
+        return 0;
+
+    return mysql_insert_id(conn_);
 }
 
 inline bool MysqlConn::isValid()

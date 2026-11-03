@@ -18,6 +18,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ./include/db
         ./include/model
+        ./include/model/entity
         ./include/service
         ./external/nlohmann_json
 )

@@ -11,13 +11,17 @@ namespace my
 class OnlineMap
 {
 public:
-    using MappingTable = std::unordered_map<int, const qinmo::net::RTcpConnPtr&>;
-
     void record(int id, const qinmo::net::RTcpConnPtr& ptr);
-    void erase();
+    void erase(int id);
+
+    int queryId(const qinmo::net::RTcpConnPtr& ptr);
 
 private:
+    using MappingTable = std::unordered_map<int, const qinmo::net::RTcpConnPtr&>;
+    using ReverseMappingTable = std::unordered_map<qinmo::net::TcpConnection*, int>;
+
     MappingTable table_;
+    ReverseMappingTable rTable_;
 
     std::mutex mutex_;
 

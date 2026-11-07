@@ -9,5 +9,6 @@ class UserModel
 {
 public:
     bool insert(User& user);
+    User query(int id);
 };
 } // namespace my

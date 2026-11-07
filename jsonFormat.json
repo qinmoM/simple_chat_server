@@ -10,7 +10,7 @@
     "id": 0,
     "name": "",
     "password_hash": "",
-    "errno": // 0: successful, 1: password_hash error, 2: id does not exsits, 3: repeat login
+    "errno": // 0: successful, 1: password_hash error, 2: id does not exsits, 3: repeat login, 4: update failed
 }
 
 {

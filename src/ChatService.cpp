@@ -48,27 +48,37 @@ void ChatService::loginMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qi
     std::string password_hash = js["password_hash"];
 
     User user = userModel_.query(id);
+    QINMO_INFO("ChatService::loginMessage: id:", user.id, " name:", user.name, " password_hash:", user.password_hash);
     if (-1 != user.id)
     {
-        // query successful
+        // repeat login
         if (1 == user.state)
         {
-            // repeat login
             json response;
             response["msg_type"] = MessageType::MsgLoginAck;
             response["errno"] = 3;
             conn->send(response.dump());
+            return;
         }
-        else
+
+        // failed to update
+        user.state = 1;
+        if (!userModel_.update(user))
         {
-            // login successful
             json response;
             response["msg_type"] = MessageType::MsgLoginAck;
-            response["errno"] = 0;
-            response["id"] = user.id;
-            response["name"] = user.name;
+            response["errno"] = 4;
             conn->send(response.dump());
+            return;
         }
+
+        // login successful
+        json response;
+        response["msg_type"] = MessageType::MsgLoginAck;
+        response["errno"] = 0;
+        response["id"] = user.id;
+        response["name"] = user.name;
+        conn->send(response.dump());
     }
     else
     {

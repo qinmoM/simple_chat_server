@@ -1,8 +1,9 @@
 #pragma once
 
 #include "json.hpp"
+#include "MessageType.h"
 #include "UserModel.h"
-#include <qinmo/net.h>
+#include "OnlineMap.h"
 
 namespace my
 {
@@ -24,6 +25,12 @@ private:
     void registerMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp);
 
 private:
+    void sendErrnoMsg(MessageType type, int errnoId, const qinmo::net::RTcpConnPtr& conn);
+    bool online(User& user, const qinmo::net::RTcpConnPtr& conn);
+
+private:
+    OnlineMap onlineMap_;
+
     UserModel userModel_;
 
 };

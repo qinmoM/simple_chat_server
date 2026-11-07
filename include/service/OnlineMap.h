@@ -12,7 +12,7 @@ class OnlineMap
 {
 public:
     void record(int id, const qinmo::net::RTcpConnPtr& ptr);
-    void erase(int id);
+    bool erase(int id);
 
     int queryId(const qinmo::net::RTcpConnPtr& ptr);
 

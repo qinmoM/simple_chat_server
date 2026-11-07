@@ -32,3 +32,10 @@ target_link_libraries(${PROJECT_NAME}
         mysqlclient
         qinmo_net
 )
+
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        QINMO_LOG_LEVEL=0
+        QINMO_LOG_OUTPUT_MODEL=3
+        QINMO_LOG_PATH="qinmoLogs/"
+)

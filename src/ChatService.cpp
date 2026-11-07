@@ -44,7 +44,52 @@ MsgHandler ChatService::getHandler(const json& js)
 
 void ChatService::loginMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
 {
-    ;
+    int id = js["id"];
+    std::string password_hash = js["password_hash"];
+
+    User user = userModel_.query(id);
+    if (-1 != user.id)
+    {
+        // query successful
+        if (1 == user.state)
+        {
+            // repeat login
+            json response;
+            response["msg_type"] = MessageType::MsgLoginAck;
+            response["errno"] = 3;
+            conn->send(response.dump());
+        }
+        else
+        {
+            // login successful
+            json response;
+            response["msg_type"] = MessageType::MsgLoginAck;
+            response["errno"] = 0;
+            response["id"] = user.id;
+            response["name"] = user.name;
+            conn->send(response.dump());
+        }
+    }
+    else
+    {
+        // query failed
+        if (password_hash == user.password_hash)
+        {
+            // user does not exists
+            json response;
+            response["msg_type"] = MessageType::MsgLoginAck;
+            response["errno"] = 2;
+            conn->send(response.dump());
+        }
+        else
+        {
+            // password incorrect
+            json response;
+            response["msg_type"] = MessageType::MsgLoginAck;
+            response["errno"] = 1;
+            conn->send(response.dump());
+        }
+    }
 }
 
 void ChatService::registerMessage(const qinmo::net::RTcpConnPtr& conn, json& js, qinmo::Timestamp timestamp)
